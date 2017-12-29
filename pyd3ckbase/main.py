@@ -1,32 +1,28 @@
 import sys
 from os import environ as os_environ, getpid as os_getpid
-import logging
+#import logging
 from pathlib import Path
 from uuid import uuid4
 from time import clock as time_clock
-from argparse import ArgumentParser, Namespace as ArgumentParserNamespace
+from argparse import ArgumentParser as ArgParser, Namespace as ArgParserNs
 import coloredlogs
 from .exception import InitErr
 
 
-def _get_cfg_fpath(clargs: ArgumentParserNamespace, cfgFpath: str) -> str:
-    if 'cfgFpath' in clargs and clargs.cfgFpath:
-        return clargs.cfgFpath
+def _get_cfg_fpath(myDpath: str, clargs: ArgParserNs, cfgFpath: str) -> str:
+    if 'cfg' in clargs and clargs.cfg:
+        return clargs.cfg
     if cfgFpath:
         return cfgFpath
-    if os_environ.get('CFG_FPATH'):
-        return os_environ['CFG_FPATH']
-    myDpath = Path(__file__).parent
-    for cfgFpath in [
-            Path(myDpath, '..', '..', 'cfg.py'), Path(myDpath, '..', 'cfg.py'),
-            Path(myDpath, 'cfg.py')
-    ]:
-        if cfgFpath.exists():
-            return str(cfgFpath.resolve())
-    return None
+    if os_environ.get('PYD3CK_CFG_FPATH'):
+        return os_environ['PYD3CK_CFG_FPATH']
+    cfgFpath = Path(myDpath, 'cfg.py')
+    if cfgFpath.exists():
+        return str(cfgFpath.resolve())
+    return str(Path(Path(__file__).parent, 'cfg.py').resolve())
 
 
-def _get_stage(clargs: ArgumentParserNamespace, stage: str) -> str:
+def _get_stage(clargs: ArgParserNs, stage: str) -> str:
     if 'stage' in clargs and clargs.stage:
         return clargs.stage
     if stage:
@@ -36,8 +32,8 @@ def _get_stage(clargs: ArgumentParserNamespace, stage: str) -> str:
     return 'prod'
 
 
-def get_arg_parser(addBasicFlags: bool=True) -> ArgumentParserNamespace:
-    p = ArgumentParser()
+def get_arg_parser(addBasicFlags: bool=True) -> ArgParserNs:
+    p = ArgParser()
     if addBasicFlags:
         p.add_argument(
             '-f',
@@ -59,7 +55,7 @@ def get_arg_parser(addBasicFlags: bool=True) -> ArgumentParserNamespace:
             help='Enable quiet mode')
         p.add_argument(
             '-C',
-            '--cfgFpath',
+            '--cfg',
             action='store',
             required=False,
             help='Path to cfg file')
@@ -68,14 +64,15 @@ def get_arg_parser(addBasicFlags: bool=True) -> ArgumentParserNamespace:
     return p
 
 
-def init(ap: ArgumentParserNamespace=None, **kwargs) -> dict:
-    clargs = ap.parse_args() if ap else ArgumentParserNamespace()
+def init(ap: ArgParserNs=None, **kwargs) -> dict:
+    clargs = ap.parse_args() if ap else ArgParserNs()
     myFpath = kwargs.get('_fpath', Path(sys.argv[0]).resolve())
+    myDpath = str(myFpath.parent)
 
     cfg = {
         '_startTime': time_clock(),
         '_fpath': str(myFpath),
-        '_dpath': str(myFpath.parent),
+        '_dpath': myDpath,
         '_fname': str(myFpath.name),
         '_clargs': clargs,
         '_uuid': str(uuid4()),
@@ -86,7 +83,7 @@ def init(ap: ArgumentParserNamespace=None, **kwargs) -> dict:
         '_logLevel': 'WARN',
         '_moduleLogLevel': 'WARN',
         '_logFormat': '%(asctime)s [%(name)s] %(levelname)s: %(message)s',
-        '_cfgFpath': _get_cfg_fpath(clargs, kwargs.get('cfgFpath')),
+        '_cfgFpath': _get_cfg_fpath(myDpath, clargs, kwargs.get('cfgFpath')),
         '_stage': _get_stage(clargs, kwargs.get('_stage'))
     }
 
@@ -119,7 +116,7 @@ def init(ap: ArgumentParserNamespace=None, **kwargs) -> dict:
         cfg['_logLevel'] = 'WARN'
         cfg['_moduleLogLevel'] = 'WARN'
 
-    log = logging.getLogger(__name__)
+    #log = logging.getLogger(__name__)
     # logging.basicConfig(
     #     level=logging.__dict__[cfg['_logLevel']], format=cfg['_logFormat'])
     coloredlogs.install(level=cfg['_logLevel'], fmt=cfg['_logFormat'])
