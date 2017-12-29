@@ -1,4 +1,4 @@
-# py_d3ck_base
+# pyd3ckbase
 
 Test project, don't use in production.
 
@@ -9,6 +9,6 @@ Test project, don't use in production.
 ## Installation
 
 ```shell
-pip install git+https://github.com/d3ck-org/py_d3ck_base.git
+pip install git+https://github.com/d3ck-org/pyd3ckbase.git
 ```
 

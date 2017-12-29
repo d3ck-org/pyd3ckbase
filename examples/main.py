@@ -4,7 +4,7 @@ os_chdir(Path(__file__).resolve().parent)
 from sys import path as sys_path
 sys_path.append('lib')
 import logging
-import py_d3ck_base as __
+import pyd3ckbase as __
 
 
 def init(cfg):
