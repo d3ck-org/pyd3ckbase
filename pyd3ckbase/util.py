@@ -8,13 +8,10 @@ from math import floor as math_floor, log10 as math_log10
 from pickle import PickleError, load as pickle_load, dump as pickle_dump
 from json import load as json_load, dump as json_dump, dumps as json_dumps
 from mimetypes import guess_type as guess_mime_type
+from pendulum import now as pndlm_now
 from .exception import DataErr
 
 log = logging.getLogger(__name__)
-
-
-def _capitalize(v: str) -> str:
-    return re_sub('([a-zA-Z])', lambda x: x.groups()[0].upper(), v, 1)
 
 
 def stderr(msg: str):
@@ -32,6 +29,14 @@ def stdout_json(data: Any):
 def die(msg: str='Unknown', exitCode: int=1):
     stderr('ERROR: {}'.format(msg))
     sys_exit(exitCode)
+
+
+def cap(v: str) -> str:
+    return re_sub('([a-zA-Z])', lambda x: x.groups()[0].upper(), v, 1)
+
+
+def now(tz='UTC') -> str:
+    return pndlm_now(tz).to_iso8601_string()
 
 
 def to_json(data: Any) -> str:
@@ -176,7 +181,7 @@ def san(d: Any, **kwargs) -> str:
     if kwargs.get('lo', False):
         d = d.lower()
     if kwargs.get('cap', False):
-        d = _capitalize(d)
+        d = cap(d)
     return d
 
 
