@@ -2,11 +2,13 @@ import logging
 from sys import stderr as sys_stderr, exit as sys_exit
 from typing import Union, Any, List
 from pathlib import Path
+from itertools import chain
 from re import sub as re_sub, match as re_match
 from uuid import UUID, uuid4
 from math import floor as math_floor, log10 as math_log10
 from pickle import PickleError, load as pickle_load, dump as pickle_dump
 from json import load as json_load, dump as json_dump, dumps as json_dumps
+from configparser import ConfigParser, Error as configparserError
 from mimetypes import guess_type as guess_mime_type
 from pendulum import now as pndlm_now
 from .exception import DataErr
@@ -96,6 +98,8 @@ def read_file(fpath: Union[str, Path], **kwargs) -> Any:
     def get_type():
         if fsfx == '.json':
             return 'json'
+        if fsfx == '.ini':
+            return 'ini'
         if fsfx == '.pickle':
             return 'pickle'
         if fsfx in ['.txt', '.xml', '.csv', '.html', '.css']:
@@ -108,6 +112,15 @@ def read_file(fpath: Union[str, Path], **kwargs) -> Any:
         if get_type() == 'json':
             with open(fpath, 'rt', encoding=enc) as f:
                 data = json_load(f)
+        if get_type() == 'ini':
+            prsr = ConfigParser()
+            # support only simple ini- (properties-) file:
+            #   fake section needed by ConfigParser:
+            #     https://stackoverflow.com/a/26859985
+            with open(fpath, 'rt', encoding='utf-8') as lines:
+                lines = chain(('[default]', ), lines)
+                prsr.read_file(lines)
+            data = prsr['default']
         elif get_type() == 'pickle':
             with open(fpath, 'rb') as f:
                 data = pickle_load(f)
@@ -120,7 +133,7 @@ def read_file(fpath: Union[str, Path], **kwargs) -> Any:
             with open(fpath, 'rb') as f:
                 data = f.read()
     except (OSError, IOError, PermissionError, FileNotFoundError, ValueError,
-            PickleError, TypeError) as e:
+            PickleError, TypeError, configparserError) as e:
         raise DataErr('Reading file {} failed: {}'.format(fpath, e))
     return data
 
