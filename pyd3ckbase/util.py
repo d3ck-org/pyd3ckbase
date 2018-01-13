@@ -120,7 +120,7 @@ def read_file(fpath: Union[str, Path], **kwargs) -> Any:
             with open(fpath, 'rt', encoding='utf-8') as lines:
                 lines = chain(('[default]', ), lines)
                 prsr.read_file(lines)
-            data = prsr['default']
+            data = dict(prsr['default'])
         elif get_type() == 'pickle':
             with open(fpath, 'rb') as f:
                 data = pickle_load(f)
