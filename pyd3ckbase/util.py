@@ -112,7 +112,7 @@ def read_file(fpath: Union[str, Path], **kwargs) -> Any:
         if get_type() == 'json':
             with open(fpath, 'rt', encoding=enc) as f:
                 data = json_load(f)
-        if get_type() == 'ini':
+        elif get_type() == 'ini':
             prsr = ConfigParser()
             # support only simple ini- (properties-) file:
             #   fake section needed by ConfigParser:
