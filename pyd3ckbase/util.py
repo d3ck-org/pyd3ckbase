@@ -91,7 +91,7 @@ def mkdir(dpath: Union[str, Path], **kwargs):
 def read_file(fpath: Union[str, Path], **kwargs) -> Any:
     enc = kwargs.get('enc', 'utf-8')
     fpath = fpath if isinstance(fpath, Path) else Path(fpath)
-    fsfx = fpath.suffix
+    fsfx = ('.' + kwargs['type']) if 'type' in kwargs else fpath.suffix
     data = None
     log.debug('Reading %s', fpath)
 
@@ -142,7 +142,7 @@ def write_file(fpath: Union[str, Path], data: Any, **kwargs):
     append = kwargs.get('append', kwargs.get('a', False))
     enc = kwargs.get('enc', 'utf-8')
     fpath = fpath if isinstance(fpath, Path) else Path(fpath)
-    fsfx = fpath.suffix
+    fsfx = ('.' + kwargs['type']) if 'type' in kwargs else fpath.suffix
     log.debug('Writing %s', fpath)
 
     def get_type():
