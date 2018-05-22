@@ -38,7 +38,7 @@ def cap(v: str) -> str:
 
 
 def now(tz='UTC') -> str:
-    return pndlm_now(tz).to_iso8601_string()
+    return pndlm_now(tz).start_of('second').to_iso8601_string()
 
 
 def to_json(data: Any) -> str:

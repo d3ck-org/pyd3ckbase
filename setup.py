@@ -15,5 +15,5 @@ setup(
     packages=find_packages(exclude=['examples']),
     install_requires=[
         'python-dateutil>=2.6.0', 'pytz>=2016.7', 'PyYAML>=3.12',
-        'coloredlogs>=5.2', 'pendulum==1.5.1', 'termcolor>=1.1.0'
+        'coloredlogs>=5.2', 'pendulum>=2.0.1', 'termcolor>=1.1.0'
     ])
